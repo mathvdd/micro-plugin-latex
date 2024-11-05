@@ -21,10 +21,10 @@ function testHandler(text)
 end
 
 
-function onBufferOpen(buf)
-	isTex = (buf:FileType() == "tex")
+function onBufPaneOpen(bp)
+	isTex = (bp.Buf:FileType() == "tex")
 	if isTex then
-		local fileName = buf:GetName()
+		local fileName = bp.Buf:GetName()
 		-- local truncFileName =fileName:sub(1, -5)
 		local syncFileName = fileName .. ".synctex.from-zathura-to-micro"
 		local scriptFifoWriteFileName = fileName .. ".fifo-writer.sh"
