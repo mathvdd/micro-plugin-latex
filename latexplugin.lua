@@ -116,13 +116,25 @@ end
 function preQuit(bp)
 	if isTex then
 		local fileName = bp.Buf:GetName()
-		-- local truncFileName = fileName:sub(1, -5)
+		local truncFileName = fileName:sub(1, -5)
 		local syncFileName = fileName .. ".synctex.from-zathura-to-micro"
 		local scriptFifoWriteFileName = fileName .. ".fifo-writer.sh"
+		local auxFileName = truncFileName .. ".aux"
+		local logFileName = truncFileName .. ".log"
+		local outFileName = truncFileName .. ".out"
+		local synctexFileName = truncFileName .. ".synctex"
+		local bblFileName = truncFileName .. ".bbl"
+		local blgFileName = truncFileName .. ".blg"
 
 		shell.JobStop(jobFifoRead)
 		shell.ExecCommand("rm", syncFileName)
 		shell.ExecCommand("rm", scriptFifoWriteFileName)
+		shell.ExecCommand("rm", auxFileName)
+		shell.ExecCommand("rm", logFileName)
+		shell.ExecCommand("rm", outFileName)
+		shell.ExecCommand("rm", synctexFileName)
+		shell.ExecCommand("rm", bblFileName)
+		shell.ExecCommand("rm", blgFileName)
 	end
 end
 
