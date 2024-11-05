@@ -105,9 +105,9 @@ end
 
 function compile(bp)
 	local fileName = bp.Buf:GetName()
-	-- local truncFileName =fileName:sub(1, -5)
-	
-	-- shell.RunCommand("bibtex " .. truncFileName)
+	local truncFileName =fileName:sub(1, -5)
+
+	shell.RunCommand("bibtex " .. truncFileName)
 	shell.ExecCommand("pdflatex", "-synctex=15", "-interaction=nonstopmode", "-draftmode", fileName)
 	shell.ExecCommand("pdflatex", "-synctex=15", "-interaction=nonstopmode", fileName)
 end
