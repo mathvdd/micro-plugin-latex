@@ -14,7 +14,7 @@ function init()
     config.AddRuntimeFile("latex-plugin-help", config.RTHelp, "help/latex-plugin.md")
 end
 
- 
+
 
 function testHandler(text)
 	micro.InfoBar():Message(text)
@@ -30,7 +30,7 @@ function onBufPaneOpen(bp)
 		local scriptFifoWriteFileName = fileName .. ".fifo-writer.sh"
 		local scriptFifoWrite = "echo \"$@\" > " .. syncFileName:gsub(" ", "\\%0")
 		local scriptFifoRead = "while true;do if read line; then echo $line; fi;sleep 0.5; done < " .. syncFileName:gsub(" ", "\\%0")
-		
+
 		shell.ExecCommand("mkfifo", syncFileName)
 		local f = io.open(scriptFifoWriteFileName, "w")
 		f:write(scriptFifoWrite)
@@ -80,7 +80,7 @@ end
 
 function synctexBackward(pos)
 	local bp = micro.CurPane()
-	
+
 	bp:GotoCmd({pos:sub(1, -2)})
 end
 
@@ -123,7 +123,7 @@ function preQuit(bp)
 		local logFileName = truncFileName .. ".log"
 		local outFileName = truncFileName .. ".out"
 		local synctexFileName = truncFileName .. ".synctex"
-		local bblFileName = truncFileName .. ".bbl"
+		-- local bblFileName = truncFileName .. ".bbl"
 		local blgFileName = truncFileName .. ".blg"
 
 		shell.JobStop(jobFifoRead)
@@ -133,7 +133,7 @@ function preQuit(bp)
 		shell.ExecCommand("rm", logFileName)
 		shell.ExecCommand("rm", outFileName)
 		shell.ExecCommand("rm", synctexFileName)
-		shell.ExecCommand("rm", bblFileName)
+		-- shell.ExecCommand("rm", bblFileName)
 		shell.ExecCommand("rm", blgFileName)
 	end
 end
