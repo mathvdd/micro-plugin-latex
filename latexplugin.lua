@@ -12,8 +12,23 @@ local utf8 = import("unicode/utf8")
 function init()
     config.MakeCommand("synctex-forward", synctexForward, config.NoComplete)
     config.AddRuntimeFile("latex-plugin-help", config.RTHelp, "help/latex-plugin.md")
+
+	-- F5 to look at bib entries
+	config.MakeCommand("bibentry", bibentryCommand, config.NoComplete)
+	config.TryBindKey("F5", "command:bibentry", true)
 end
 
+function bibentryCommand(bp)
+		local fileName = bp.Buf:GetName()
+		local truncFileName = fileName:sub(1, -5)
+		local bibFileName = truncFileName .. ".bib"
+
+		local cmd = string.format("bash -c \"grep '^@' %s | awk -F'[{,]' '{print $2}' | sort | fzf\"", bibFileName)
+
+		local out, err = shell.RunInteractiveShell(cmd, false, true)
+		local out2 = out:gsub('\n','')
+		bp.Buf:Insert(-bp.Cursor.Loc, out2) -- got this from  the jlabbrev plugin
+end
 
 
 function testHandler(text)
