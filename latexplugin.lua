@@ -15,8 +15,25 @@ function init()
     config.MakeCommand("synctex-forward", synctexForward, config.NoComplete)
     linter.makeLinter("latex", "tex", "pdflatex", {"-interaction=nonstopmode", "-draftmode", "-file-line-error", "%f"}, "%f:%l:%m", {"linux"}, true, false)
     config.AddRuntimeFile("latex-plugin-help", config.RTHelp, "help/latex-plugin.md")
+
+	-- F5 to look at bib entries
+	config.MakeCommand("bibentry", bibentryCommand, config.NoComplete)
+	config.TryBindKey("F5", "command:bibentry", true)
 end
 
+function bibentryCommand(bp)
+	if bp.Buf:FileType() == "tex" then
+		local fileName = bp.Buf:GetName()
+		local truncFileName = fileName:sub(1, -5)
+		local bibFileName = truncFileName .. ".bib"
+
+		local cmd = string.format("bash -c \"grep '^@' %s | awk -F'[{,]' '{print $2}' | sort | fzf --layout=reverse\"", bibFileName)
+
+		local out, err = shell.RunInteractiveShell(cmd, false, true)
+		local out2 = out:gsub('\n','')
+		bp.Buf:Insert(-bp.Cursor.Loc, out2) -- got this from  the jlabbrev plugin
+	end
+end
 
 
 function onBufferOpen(buf)
@@ -24,7 +41,7 @@ function onBufferOpen(buf)
 		local fileName = buf:GetName()
 		syncFileName = fileName .. ".synctex.from-zathura-to-micro.fifo"
 		local shellFifoRead = "while true; do read -r linenumber < " .. syncFileName:gsub(" ", "\\%0") .. " && echo $linenumber; done"
-		
+
 		shell.ExecCommand("mkfifo", syncFileName)
 		jobFifoRead = shell.JobStart(shellFifoRead, synctexBackward, nil, dummyFunc)
 		isSynctexBackwardDaemonRunning = true
@@ -92,6 +109,23 @@ function preQuit(bp)
 	if isSynctexBackwardDaemonRunning == true then
 		shell.ExecCommand("rm", syncFileName)
 		shell.JobStop(jobFifoRead)
+	end
+
+	if bp.Buf:FileType() == "tex" then
+		local fileName = bp.Buf:GetName()
+		local truncFileName = fileName:sub(1, -5)
+		local auxFileName = truncFileName .. ".aux"
+		local logFileName = truncFileName .. ".log"
+		local outFileName = truncFileName .. ".out"
+		-- local bblFileName = truncFileName .. ".bbl"
+		local blgFileName = truncFileName .. ".blg"
+
+		shell.JobStop(jobFifoRead)
+		shell.ExecCommand("rm", auxFileName)
+		shell.ExecCommand("rm", logFileName)
+		shell.ExecCommand("rm", outFileName)
+		-- shell.ExecCommand("rm", bblFileName)
+		shell.ExecCommand("rm", blgFileName)
 	end
 end
 
