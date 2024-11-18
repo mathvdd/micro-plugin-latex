@@ -19,15 +19,17 @@ function init()
 end
 
 function bibentryCommand(bp)
+	if isTex then
 		local fileName = bp.Buf:GetName()
 		local truncFileName = fileName:sub(1, -5)
 		local bibFileName = truncFileName .. ".bib"
 
-		local cmd = string.format("bash -c \"grep '^@' %s | awk -F'[{,]' '{print $2}' | sort | fzf\"", bibFileName)
+		local cmd = string.format("bash -c \"grep '^@' %s | awk -F'[{,]' '{print $2}' | sort | fzf --layout=reverse\"", bibFileName)
 
 		local out, err = shell.RunInteractiveShell(cmd, false, true)
 		local out2 = out:gsub('\n','')
 		bp.Buf:Insert(-bp.Cursor.Loc, out2) -- got this from  the jlabbrev plugin
+	end
 end
 
 
@@ -68,9 +70,9 @@ function onSave(bp)
 	if isTex then
 		local isError = lint(bp)
 		if not isError then
-			if isBufferModified then
-				compile(bp)
-			end
+			-- if isBufferModified then
+			compile(bp)
+			-- end
 			synctexForward(bp)
 		end
 	end
